@@ -17,7 +17,8 @@ void menu(){
     std::cout << "-------------------" << std::endl;
     std::cout << "-- 1- registrar  --" << std::endl;
     std::cout << "-- 2- visualizar --" << std::endl;
-    std::cout << "-- 3- Sair       --" << std::endl;
+    std::cout << "-- 3- excluir    --" << std::endl;
+    std::cout << "-- 4- Sair       --" << std::endl;
     std::cout << "-------------------" << std::endl;
     std::cout << "- Escolha uma opção: " << std::endl;
 }
@@ -81,13 +82,58 @@ void visualizarVenda(){
 
 }
 
+using namespace std;
+#define MAX_TAREFAS 1000
+
+void excluirVenda(int alvo){
+    
+    string tarefas[MAX_TAREFAS];
+    int total = 0;
+    char buffer[256];
+
+
+    FILE *arquivo = fopen("vendas.txt", "r");
+    if(arquivo != NULL){
+        while(fgets(buffer,sizeof(buffer), arquivo) && total < MAX_TAREFAS){
+            tarefas[total] = buffer;
+            total++;
+        }
+        fclose(arquivo);
+    }
+
+    if(alvo < 1 || alvo > total){
+        printf("venda inexistente!!\n");
+    
+    }
+
+    for(int i = alvo - 1 ; i < total - 1; i++){
+        tarefas[i] = tarefas[i + 1];
+    }
+    total--;
+
+
+    arquivo = fopen("vendas.txt", "w");
+    if(arquivo == NULL){
+        return;
+    }
+
+    for(int i = 0; i < total; i++){
+        fputs(tarefas[i].c_str(), arquivo);
+    }
+
+    fclose(arquivo);
+    printf("removido com sucesso!!\n");
+
+}
+
+
 
 
 int main(){
   
 int opcao = 0;
 
-while(opcao != 3){
+while(opcao != 4){
    
     menu();
     scanf(" %d", &opcao);
@@ -98,6 +144,18 @@ while(opcao != 3){
 
     else if(opcao == 2){
         visualizarVenda();
+    }
+
+    else if(opcao == 3){
+
+        int id = 0;
+
+        visualizarVenda();
+        printf("---------------\n");
+        printf("qual venda deseja excluir?: \n");
+        scanf("%d", &id);
+        excluirVenda(id);
+        
     }
 
 }
