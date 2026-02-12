@@ -5,6 +5,10 @@
 #include <fstream>
 
 
+using namespace std;
+
+
+
 struct Venda{
     std::string produto;
     double preco;
@@ -32,19 +36,38 @@ void registrarVenda(){
 
     std::cout << "Produto: ";
     getline(std::cin, novaVenda.produto);
-    printf("Preço: ");
-    (std::cin >> novaVenda.preco);
-    printf("Quantidade: ");
-    (std::cin >> novaVenda.qtde);;
+
+    while(true){
+        printf("Preço (use ponto): ");
+        if (std::cin >> novaVenda.preco && std::cin.peek() == '\n'){
+            break;
+        }
+        else{
+            printf("ERRO: Digite valor válido!\n");
+            std::cin.clear();
+            char c;
+            while (std::cin.get(c) && c != '\n');
+        }
+    }
+
+    while(true){
+        printf("Quantidade: ");
+        if(std::cin >> novaVenda.qtde){
+            break;
+        }
+        else{
+            printf("ERRO: Digite Valor Válido!\n");
+            std::cin.clear();
+            while(std::cin.get() != '\n');
+        }
+    }
     printf("--------------------------\n");
 
 
-    std::ofstream vendas;
-    vendas.open("vendas.txt", std::ios::app);
-
+    std::ofstream vendas("vendas.txt", std::ios::app);
     if(vendas.is_open()){
         vendas << " | " << novaVenda.produto << " | " << novaVenda.preco << " | " << novaVenda.qtde <<  " | " << std::endl; 
-        
+
         vendas.close();
         printf("registro salvo!\n");
     }
@@ -64,19 +87,19 @@ void visualizarVenda(){
     if(vendas.is_open()){
 
         printf("--- LISTA DE PRODUTOS SALVOS ---\n");
-        printf("----------------------------\n");
+        printf("--------------------------------\n");
 
-        
 
         while(std::getline(vendas, linha)){
             std::cout << n << "- " << linha << std::endl;
             n++;
         }
         vendas.close();
-        printf("---------------\n");
+        printf("--------------------------------\n");
+        printf("aperte enter.");
         std::cin.ignore();
         std::cin.get();
-
+        
     }
     else{
         printf("não encotrado");
@@ -84,7 +107,6 @@ void visualizarVenda(){
     
 
 }
-
 using namespace std;
 #define MAX_TAREFAS 1000
 
@@ -106,14 +128,14 @@ void excluirVenda(int alvo){
 
     if(alvo < 1 || alvo > total){
         printf("venda inexistente!!\n");
-    
+        return;
     }
-
-    for(int i = alvo - 1 ; i < total - 1; i++){
+    
+    else{ for(int i = alvo - 1 ; i < total - 1; i++){
         tarefas[i] = tarefas[i + 1];
     }
     total--;
-
+    }
 
     arquivo = fopen("vendas.txt", "w");
     if(arquivo == NULL){
@@ -126,7 +148,7 @@ void excluirVenda(int alvo){
 
     fclose(arquivo);
     printf("removido com sucesso!!\n");
-
+    
 }
 
 
