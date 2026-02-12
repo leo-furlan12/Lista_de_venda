@@ -27,8 +27,11 @@ void registrarVenda(){
 
     Venda novaVenda;
     printf("--------------------------\n");
-    printf("Produto: ");
-    (std::cin >> novaVenda.produto);
+
+    std::cin.ignore(1000, '\n');
+
+    std::cout << "Produto: ";
+    getline(std::cin, novaVenda.produto);
     printf("Preço: ");
     (std::cin >> novaVenda.preco);
     printf("Quantidade: ");
