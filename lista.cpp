@@ -3,6 +3,8 @@
 #include <string>
 #include <cstdio>
 #include <fstream>
+#include <string>
+#include <iomanip>
 
 
 using namespace std;
@@ -10,9 +12,15 @@ using namespace std;
 
 
 struct Venda{
+    std::string data;
     std::string produto;
-    double preco;
     int qtde;
+    double preco;
+    double custo;
+    double estorno_tarifa;
+    double tarifas;
+    double lucro_bruto;
+    double lucro_liquído;    
 };
 
 void menu(){    
@@ -34,9 +42,29 @@ void registrarVenda(){
 
     std::cin.ignore(1000, '\n');
 
+    std::cout << "Data (DD/MM): ";
+    getline(std::cin, novaVenda.data);
+
     std::cout << "Produto: ";
     getline(std::cin, novaVenda.produto);
 
+
+    // estrutura de quantidade
+    while(true){
+        printf("Quantidade: ");
+        if(std::cin >> novaVenda.qtde){
+            break;
+        }
+        else{
+            printf("ERRO: Digite Valor Válido!\n");
+            std::cin.clear();
+            while(std::cin.get() != '\n');
+        }
+    }
+
+
+
+    // estrutura de preço
     while(true){
         printf("Preço (use ponto): ");
         if (std::cin >> novaVenda.preco && std::cin.peek() == '\n'){
@@ -50,26 +78,66 @@ void registrarVenda(){
         }
     }
 
+
+    // estrutura do custo de produto
     while(true){
-        printf("Quantidade: ");
-        if(std::cin >> novaVenda.qtde){
+        printf("Custo unitário: ");
+        if(std::cin >> novaVenda.custo && std::cin.peek() == '\n'){
+
             break;
         }
         else{
-            printf("ERRO: Digite Valor Válido!\n");
+            printf("ERRO! Digite Valor Válido!\n");
             std::cin.clear();
-            while(std::cin.get() != '\n');
+            char c;
+            while (std::cin.get(c) && c != '\n');
         }
     }
+
+
+    // estrutura de estorno da tarifa
+    while(true){
+        printf("Estorno da tarifa: ");
+        if(std::cin >> novaVenda.estorno_tarifa && std::cin.peek() == '\n'){
+            break;
+        }
+        else{
+            printf("ERRO: Digite valor válido!!\n");
+            std::cin.clear();
+            char c;
+            while (std::cin.get(c) && c != '\n');
+        }
+    }
+
+
+    novaVenda.custo = novaVenda.custo * novaVenda.qtde;
+    novaVenda.tarifas = (6.50 * novaVenda.qtde) + (0.14 * novaVenda.preco);
+    novaVenda.lucro_bruto = novaVenda.preco - novaVenda.tarifas + novaVenda.estorno_tarifa;
+    novaVenda.lucro_liquído = novaVenda.lucro_bruto - novaVenda.custo;
+
+
     printf("--------------------------\n");
 
 
     std::ofstream vendas("vendas.txt", std::ios::app);
     if(vendas.is_open()){
-        vendas << " | " << novaVenda.produto << " | " << novaVenda.preco << " | " << novaVenda.qtde <<  " | " << std::endl; 
 
+        vendas << std::fixed << std::setprecision(2);
+        
+        vendas << " | " << novaVenda.data 
+               << " | " << novaVenda.produto 
+               << " | " << novaVenda.qtde 
+               << " | " << novaVenda.preco 
+               << " | " << novaVenda.custo 
+               << " | " << novaVenda.tarifas 
+               << " | " << novaVenda.estorno_tarifa 
+               << " | " << novaVenda.lucro_bruto 
+               << " | " << novaVenda.lucro_liquído
+               << " | " << std::endl;
+
+        vendas.flush();
         vendas.close();
-        printf("registro salvo!\n");
+        printf("registro salvo com sucesso!\n");
     }
 
     else{
@@ -81,34 +149,77 @@ void registrarVenda(){
 void visualizarVenda(){
 
     std::ifstream vendas("vendas.txt");
-    std::string linha;
+    std::string lixo, data, produto, qtde, preco, custo, tarifas, estorno, bruto, liquido;
     int n = 1;
 
     if(vendas.is_open()){
 
-        printf("--- LISTA DE PRODUTOS SALVOS ---\n");
-        printf("--------------------------------\n");
+        std::cout << "\n" << std::string(118, '-') << std::endl;
 
-
-        while(std::getline(vendas, linha)){
-            std::cout << n << "- " << linha << std::endl;
-            n++;
-        }
-        vendas.close();
-        printf("--------------------------------\n");
-        printf("aperte enter.");
-        std::cin.ignore();
-        std::cin.get();
+        std::cout << std::left << std::setw(4)  << "ID"
+                  << std::setw(12) << "DATA"
+                  << std::setw(20) << "PRODUTO"
+                  << std::setw(6)  << "QTDE"
+                  << std::setw(11) << "PRECO"
+                  << std::setw(11) << "CUSTO"
+                  << std::setw(11) << "TARIFAS"
+                  << std::setw(11) << "EXTORNO"
+                  << std::setw(11) << "L. BRUTO" 
+                  << std::setw(11) << "L. LIQ" << std::endl;
+        std::cout << std::string(118, '-') << std::endl;
         
+        while (getline(vendas, lixo, '|') && 
+               getline(vendas, data, '|') && 
+               getline(vendas, produto, '|') && 
+               getline(vendas, qtde, '|') && 
+               getline(vendas, preco, '|') && 
+               getline(vendas, custo, '|') && 
+               getline(vendas, tarifas, '|') && 
+               getline(vendas, estorno, '|') && 
+               getline(vendas, bruto, '|') && 
+               getline(vendas, liquido, '|')){
+
+                if (produto.length() > 1){
+
+                    std::cout << std::left << std::setw(4)  << n
+                          << std::setw(12) << data
+                          << std::setw(20) << produto
+                          << std::setw(6)  << qtde
+                          << std::setw(11) << preco
+                          << std::setw(11) << custo
+                          << std::setw(11) << tarifas
+                          << std::setw(11) << estorno
+                          << std::setw(11) << bruto
+                          << std::setw(11) << liquido << std::endl;
+                          n++;
+            }
+            getline(vendas,lixo);
+        }
+
+       
+            
+        
+        vendas.close();
+      std::cout << std::string(118, '-') << std::endl;
     }
     else{
-        printf("não encotrado");
+        std::cout << "Nenhuma venda registrada ainda (arquivo nao encontrado)." << std::endl;
     }
+    std::cout << "Pressione Enter para voltar...";
+    
+    std::cin.clear();
+    if(std::cin.peek() == '\n') std::cin.ignore();
+    std::cin.get();
     
 
 }
+
+
+
 using namespace std;
 #define MAX_TAREFAS 1000
+
+
 
 void excluirVenda(int alvo){
     
