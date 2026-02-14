@@ -25,13 +25,14 @@ struct Venda{
 
 void menu(){    
     std::cout << "-------------------" << std::endl;
-    std::cout << "--Lista de venda--" << std::endl;
-    std::cout << "-------------------" << std::endl;
+    std::cout << "--Lista de venda---" << std::endl;
+    std::cout << "===================" << std::endl;
     std::cout << "-- 1- registrar  --" << std::endl;
     std::cout << "-- 2- visualizar --" << std::endl;
     std::cout << "-- 3- excluir    --" << std::endl;
-    std::cout << "-- 4- Sair       --" << std::endl;
-    std::cout << "-------------------" << std::endl;
+    std::cout << "-- 4- Relatório  --" << std::endl;
+    std::cout << "-- 5- Sair       --" << std::endl;
+    std::cout << "===================" << std::endl;
     std::cout << "- Escolha uma opção: " << std::endl;
 }
 
@@ -181,6 +182,8 @@ void visualizarVenda(){
 
                 if (produto.length() > 1){
 
+                    
+
                     std::cout << std::left << std::setw(4)  << n
                           << std::setw(12) << data
                           << std::setw(20) << produto
@@ -191,6 +194,10 @@ void visualizarVenda(){
                           << std::setw(11) << estorno
                           << std::setw(11) << bruto
                           << std::setw(11) << liquido << std::endl;
+
+
+                    
+                    
                           n++;
             }
             getline(vendas,lixo);
@@ -263,13 +270,71 @@ void excluirVenda(int alvo){
 }
 
 
+void relatorioFinanceiro(){
+    std::ifstream vendas("vendas.txt");
+    
+    
+    std::string lixo, data, produto, qtde, preco, custoStr, tarifas, estorno, brutoStr, liquidoStr;
+    
+
+    float totalCusto = 0;
+    float totalLucroBruto = 0;
+    float totalLucroLiquido = 0;
+
+    if (vendas.is_open()) {
+        
+    
+        while (getline(vendas, lixo, '|') && 
+               getline(vendas, data, '|') && 
+               getline(vendas, produto, '|') && 
+               getline(vendas, qtde, '|') && 
+               getline(vendas, preco, '|') && 
+               getline(vendas, custoStr, '|') &&    
+               getline(vendas, tarifas, '|') && 
+               getline(vendas, estorno, '|') && 
+               getline(vendas, brutoStr, '|') &&    
+               getline(vendas, liquidoStr, '|')) {  
+            
+           
+            if (produto.length() > 1) {
+                
+             
+                totalCusto        += atof(custoStr.c_str());
+                totalLucroBruto   += atof(brutoStr.c_str());
+                totalLucroLiquido += atof(liquidoStr.c_str());
+            }
+  
+            getline(vendas, lixo); 
+        }
+        
+        vendas.close();
+
+        // MOSTRA O RELATÓRIO FINAL
+        std::cout << "\n=========================================\n";
+        std::cout << "      RELATÓRIO FINANCEIRO GERAL       \n";
+        std::cout << "=========================================\n";
+        std::cout << " CUSTO TOTAL INVESTIDO:  R$ " << std::fixed << std::setprecision(2) << totalCusto << "\n";
+        std::cout << " LUCRO BRUTO TOTAL:      R$ " << totalLucroBruto << "\n";
+        std::cout << "-----------------------------------------\n";
+        std::cout << " LUCRO LÍQUIDO REAL:     R$ " << totalLucroLiquido << "\n";
+        std::cout << "=========================================\n";
+
+    } else {
+        std::cout << "Erro: Arquivo de vendas não encontrado.\n";
+    }
+
+    std::cout << "\nPressione Enter para voltar ao menu...";
+    std::cin.ignore();
+    std::cin.get();
+}
+    
 
 
 int main(){
   
 int opcao = 0;
 
-while(opcao != 4){
+while(opcao != 5){
    
     menu();
     scanf(" %d", &opcao);
@@ -291,7 +356,10 @@ while(opcao != 4){
         printf("qual venda deseja excluir?: \n");
         scanf("%d", &id);
         excluirVenda(id);
-        
+    }
+
+    else if(opcao == 4){
+        relatorioFinanceiro();
     }
 
 }
