@@ -1,0 +1,12 @@
+# Binários e Executáveis
+# Ignora o ficheiro que o g++ gera (no teu caso, 'programa')
+programa
+a.out
+
+# Base de Dados Local
+# Não queremos subir as tuas vendas de teste para o público
+vendas.txt
+
+# Ficheiros de sistema e objetos
+*.o
+.vscode/
